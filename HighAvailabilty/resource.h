@@ -1,0 +1,1 @@
+#define CON_ICON 1

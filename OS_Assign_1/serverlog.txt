@@ -1,0 +1,11 @@
+Received Expression: 1234 + 521
+
+RESULT: 1755.000Received Expression: 1234 - 521
+
+RESULT: 713.000Received Expression: 1234 * 521
+
+RESULT: 642914.000Received Expression: 1234 / 521
+
+RESULT: 2.369Received Expression: 1234 % 521
+
+RESULT: 192.000Received Expression: END

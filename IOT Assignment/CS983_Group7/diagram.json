@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-mega", "id": "mega", "top": 38.25, "left": -161.64, "attrs": {} },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "ultrasonic1",
+      "top": -305.99,
+      "left": -537.34,
+      "attrs": { "distance": "322" }
+    },
+    {
+      "type": "wokwi-servo",
+      "id": "servo1",
+      "top": -122.72,
+      "left": -541.32,
+      "rotate": 180,
+      "attrs": { "hornColor": "#000088" }
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": 312.8,
+      "left": 52.21,
+      "rotate": 180,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 277.78,
+      "left": 368.44,
+      "rotate": 90,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 254.37,
+      "left": 226.98,
+      "rotate": 180,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -484.51,
+      "left": -85.13,
+      "attrs": { "temperature": "64.9", "humidity": "0" }
+    },
+    {
+      "type": "wokwi-stepper-motor",
+      "id": "stepper2",
+      "top": -509.63,
+      "left": 60.62,
+      "attrs": { "size": "17", "arrow": "orange" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 3.09,
+      "left": 434.73,
+      "rotate": 90,
+      "attrs": { "value": "220000" }
+    },
+    { "type": "wokwi-lcd2004", "id": "lcd2", "top": -401.61, "left": 420.34, "attrs": {} }
+  ],
+  "connections": [
+    [ "ldr1:GND", "mega:GND.3", "black", [ "h0" ] ],
+    [ "ldr1:AO", "mega:A0", "cyan", [ "h0" ] ],
+    [ "r1:1", "led1:A", "blue", [ "v0" ] ],
+    [ "dht1:SDA", "mega:14", "limegreen", [ "h0.61", "v178.61", "h168.88" ] ],
+    [ "ultrasonic1:VCC", "servo1:V+", "red", [ "v19.21", "h116.69", "v135.06" ] ],
+    [ "r1:2", "mega:52", "magenta", [ "h0" ] ],
+    [ "ldr1:VCC", "mega:5V", "red", [ "h0" ] ],
+    [ "r2:1", "mega:5V.2", "red", [ "v0" ] ],
+    [ "servo1:GND", "mega:GND.1", "black", [ "h15.53", "v39.74", "h312.21" ] ],
+    [ "stepper2:B-", "mega:19", "white", [ "v0" ] ],
+    [ "stepper2:B+", "mega:18", "green", [ "v0" ] ],
+    [ "stepper2:A+", "mega:17", "yellow", [ "v0" ] ],
+    [ "stepper2:A-", "mega:16", "cyan", [ "v0" ] ],
+    [ "mega:GND.2", "led1:C", "black", [ "v79.96", "h337.02" ] ],
+    [ "lcd2:K", "mega:GND.5", "black", [ "v0" ] ],
+    [ "lcd2:A", "r2:1", "violet", [ "v0" ] ],
+    [ "lcd2:VDD", "servo1:V+", "red", [ "v206.5", "h-810.56", "v-36.55" ] ],
+    [ "mega:GND.5", "lcd2:VSS", "black", [ "v0.35", "h176.29" ] ],
+    [ "r2:1", "lcd2:VDD", "red", [ "h0" ] ],
+    [ "dht1:GND", "mega:GND.1", "black", [ "v414.79", "h11.47" ] ],
+    [ "lcd2:RW", "mega:GND.5", "black", [ "v0" ] ],
+    [ "mega:42", "lcd2:D7", "gray", [ "v-1.6", "h376.64" ] ],
+    [ "mega:40", "lcd2:D6", "yellow", [ "v-0.81", "h368.5" ] ],
+    [ "mega:38", "lcd2:D5", "#8f4814", [ "v-0.27", "h357.9" ] ],
+    [ "mega:36", "lcd2:D4", "green", [ "v-0.3", "h347.31" ] ],
+    [ "mega:34", "lcd2:E", "magenta", [ "v-0.58", "h301.69" ] ],
+    [ "mega:32", "lcd2:RS", "blue", [ "v-1.67", "h281.32" ] ],
+    [ "dht1:VCC", "mega:5V.2", "red", [ "v187.9", "h301.61" ] ],
+    [ "ultrasonic1:GND", "servo1:GND", "black", [ "h113.14", "v163.77" ] ],
+    [ "ultrasonic1:TRIG", "mega:12", "magenta", [ "v12.4", "h138.78", "v209.31", "h293.62" ] ],
+    [
+      "ultrasonic1:ECHO",
+      "mega:11",
+      "green",
+      [ "v6.22", "h135.77", "v206.22", "h295.54", "v46.3" ]
+    ],
+    [ "servo1:PWM", "mega:10", "orange", [ "h368.39", "v113.97" ] ]
+  ],
+  "dependencies": {}
+}

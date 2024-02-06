@@ -1,4 +1,3 @@
-# CollegeProjects
 Masters in Computer Application, Course Projects
 : FileCompressionAlgo
 : HighAvailabilitySystem

@@ -6,4 +6,4 @@ Masters in Computer Application, Course Projects
 
 eMasters in Cyber Security, Assignments :
 
-IOT Assignment
+IOT Assignment - Home AutomationSystem

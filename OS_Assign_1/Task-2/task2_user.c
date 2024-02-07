@@ -1,3 +1,13 @@
+/*************************************************************
+Author : Pritesh Kadam
+
+OS Assignment 1 - Chat Between Two Users
+User program.
+Receives the pipe read/write descriptors , and chat file from where it reads lines 
+and sends to other user over the pipe.
+
+*************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,9 +22,9 @@
 #define STDOUT 1
 #define STDERR  2
 
-bool debug = false;
+bool g_debug = false;
 
-#define DEBUG_LOG(...) if(debug){printf("[%s : ", argv[0]);printf(__VA_ARGS__);printf("]\n");}
+#define DEBUG_LOG(...) if(g_debug){printf("[%s : ", argv[0]);printf(__VA_ARGS__);printf("]\n");}
 
 int main(int argc, char **argv){
 
@@ -35,11 +45,15 @@ int main(int argc, char **argv){
 
     if(argc < 5)
     {
-        DEBUG_LOG("Received:[%d], Required[5] Args\n", argc);
+        printf("Received:[%d], Required[5] Args\n", argc);
         exit(-1);
     }
 
-    //printf("ARGS: 0[%s], 1[%s], 2[%s], 3[%s], 4[%s]\n", argv[0], argv[1], argv[2], argv[3], argv[4]);
+    if ((argc == 6) && (strncmp(argv[5], "debug", strlen("debug")) == 0)) {
+        g_debug = true;
+    }
+
+    DEBUG_LOG("ARGS: 0[%s], 1[%s], 2[%s], 3[%s], 4[%s]\n", argv[0], argv[1], argv[2], argv[3], argv[4]);
 
     int readfd = atoi(argv[1]);   // read handle of channel
     int writefd = atoi(argv[2]);  // write handle of channel
@@ -52,10 +66,6 @@ int main(int argc, char **argv){
     bool initiator = false;
     bool checkInit = true;
     char* line = buffer;
-
-    if (strncmp(argv[5], "debug", strlen("debug")) == 0) {
-        debug = true;
-    }
 
     DEBUG_LOG("READFD:[%d], WRITEFD[%d]\n", readfd, writefd);
 
@@ -78,7 +88,7 @@ int main(int argc, char **argv){
     // Read the chat_file line by line
     while (getline(&line, &line_Size, chatFile) > 0) {
 
-        //DEBUG_LOG(line);
+        DEBUG_LOG("Read : %s", line);
         if (checkInit == true){
             if (strncmp(line, "initiate", strlen("initiate")) == 0) {
                 initiator = true;

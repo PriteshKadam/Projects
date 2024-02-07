@@ -1,3 +1,12 @@
+/*************************************************************
+Author : Pritesh Kadam
+
+OS Assignment 1 - Client-Server Calculator.
+
+This file contains the calculation code.
+
+ *************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,15 +15,16 @@
 #include <unistd.h>
 #include <calc.h>
 #include <math.h>
+#include <stdbool.h>
 
+extern bool g_debug ;
+#define DEBUG_LOG(...) if(g_debug){printf("Client : ");printf(__VA_ARGS__);}
 
+// Assuming a & b will be +ve values only
 double remainder(double a, double b)
 {
     double mod;
-    // Handling negative values
     mod = a;
-
-    // Finding mod by repeated subtraction
 
     while (mod >= b)
         mod = mod - b;
@@ -22,6 +32,7 @@ double remainder(double a, double b)
     return mod;
 }
 
+// Only numeric operands, and +, -, *, /, % operators accepted.
 double calculate(char *buf){
 
   /*************************************************************
@@ -41,18 +52,17 @@ double calculate(char *buf){
 
   // implement expression evaluation functionality here
 
+  // Separate operands and operators.
   char* token = strtok(buf, " ");
-
   while (token != NULL) {
       if (*token == '+' || *token == '-' || *token == '*' || *token == '/' || *token == '%'){
-          // operator
           if (oprnInd == 0){
               return result;
           }
           op[opIdx++] = *token;
       }
       else {
-          // operand
+          // operands
           operands[oprnInd++] = atof(token);
       }
 
@@ -63,17 +73,25 @@ double calculate(char *buf){
 
       token = strtok(NULL, " ");
   }
-  /*
-  printf("Operands: ");
-  for (int nextOp = 0; nextOp < oprnInd; nextOp++) {
-      printf(" %f ", operands[nextOp]);
-  }
-  printf("\n Operators: ");
-  for (int nextOp = 0; nextOp < opIdx; nextOp++) {
-      printf("%c ", op[nextOp]);
-  }
-  */
-  // Solve Div, Mult, Mod first
+
+  // Solve Div, Mult, Mod first . Keep remaining part as it is.
+  // Store remaining part of operands in Operands1 & 
+  // remaining operators in Ops1 in sequence.
+  // Algo : 
+  // Consider two operands at a time.
+  // save first operand in Operands1 first index (firstoperand).
+  // iterate operands in sequence from 2nd index(secondoperand).
+  // if operator is *, / , % 
+  //     calculate : firstoperand (OP) secondoperand
+  //     replace firstoperand with the result. 
+  //     go to next operand & next operator
+  // else:
+  //    save secondoperand , save operator ( here secondoperand becomes firstoperand , next operand becomes secondoperand)
+  //    go to next operand & next operator
+  // 
+  // At the end we will have all Div, Mult, Mod solved and + - remaning.
+  //
+
   Operands1[0] = operands[0];
   firstOperandIdx = 0;
   secondOperandIdx = 1;
@@ -101,18 +119,9 @@ double calculate(char *buf){
             break;
       }
   }
-  /*
-  printf("New Operands: ");
-  for (int nextOp = 0; nextOp <= firstOperandIdx; nextOp++){
-      printf("%f ", Operands1[nextOp]);
-   }
-  printf("\nNew Operators: ");
-  for (int nextOp = 0; nextOp < opIdx1; nextOp++) {
-      printf("%c ", Ops1[nextOp]);
-  }
-  */
 
-  // Solve Add, sub
+  // Solve Add, sub sequentially
+  // 
   result = Operands1[0];
   secondOperandIdx = 1;
   for (int nextOp = 0; nextOp < opIdx1; nextOp++) {
@@ -126,6 +135,5 @@ double calculate(char *buf){
       }
   }
 
-  fflush(stdout);
   return(result);
 }

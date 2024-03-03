@@ -1,0 +1,8 @@
+GemOS# init
+Setting up init process ...
+Page table setup done, launching init ...
+VM_Area:[1]	MMAP_Page_Faults[6]
+VM_Area:[1]	MMAP_Page_Faults[6]
+Reached end of the program
+GemOS# 
+

@@ -18,6 +18,7 @@
 
 #define PRESENT_BIT 0x1
 #define RW_BIT  0x8
+#define USER_BIT  0x10
 
 
 
@@ -98,12 +99,14 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
     u48 vaddr = addr;
 
     if (current == NULL || error_code == ERROR_CODE_WRITE_ON_READONLY) {
+        //printk("vm_area_pagefault ERROR_CODE_WRITE_ON_READONLY \n");
         return -1;
     }
 
     char permissions[3];
 
     // Verify addr 
+    //printk("vm_area_pagefault Verify addr \n");
     struct vm_area* vmarea = current->vm_area;
     while (vmarea != NULL) {
 
@@ -112,15 +115,17 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
         }
         vmarea = vmarea->vm_next;
     }
-
+    
     if (vmarea == NULL){
         // No VMA exists
+        //printk("vm_area_pagefault No VMA exists \n");
         return -1;
     }
 
     // Verify access flags
-    if ((error_code == ERROR_CODE_WRITE) && !(vmarea->access_flags & PROT_READ)){
+    if ((error_code == ERROR_CODE_WRITE) && (vmarea->access_flags == PROT_READ)){
         // Writing on read-only area or area having no write permission
+        //printk("vm_area_pagefault Writing on read-only area \n");
         return -1;
     }
     // Names as per the 4 level page table diagram
@@ -132,46 +137,54 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
 
     u48* cr3 = (u48*)osmap(current->pgd);
     u48* pgd_t = cr3 + pgd_offset;
+    //printk("vm_area_pagefault pgd_t\n");
     if ((*pgd_t & 0x1) == 0){
         // Entry is not present. Need to allocate.
+        //printk("vm_area_pagefault pgd_t allocation \n");
         u64 new_pfn = (u64)os_pfn_alloc(OS_PT_REG);
         u48 new_pte = (u48)osmap(new_pfn);
         new_pte = new_pte & (~MASK12LSBITS);
-        new_pte  = new_pte | PRESENT_BIT | RW_BIT;
+        new_pte  = new_pte | PRESENT_BIT | USER_BIT | RW_BIT ;
         *pgd_t = new_pte;
     }
 
     u48* pud = (u48*)osmap((*pgd_t) >> 12);
     u48* pud_t = pud + pud_offset;
+    //printk("vm_area_pagefault pud_t \n");
     if ((*pud_t & 0x1) == 0) {
         // Entry is not present. Need to allocate.
+        //printk("vm_area_pagefault pud_t allocation \n");
         u64 new_pfn = (u64)os_pfn_alloc(OS_PT_REG);
         u48 new_pte = (u48)osmap(new_pfn);
         new_pte = new_pte & (~MASK12LSBITS);
-        new_pte = new_pte | PRESENT_BIT | RW_BIT;
+        new_pte = new_pte | PRESENT_BIT | USER_BIT | RW_BIT;
         *pud_t = new_pte;
 
     }
 
     u48* pmd = (u48*)osmap((*pud_t) >> 12);
     u48* pmd_t = pmd + pmd_offset;
+    //printk("vm_area_pagefault pmd_t \n");
     if ((*pmd_t & 0x1) == 0) {
         // Entry is not present. Need to allocate.
+        //printk("vm_area_pagefault pmd_t allocation \n");
         u64 new_pfn = (u64)os_pfn_alloc(OS_PT_REG);
         u48 new_pte = (u48)osmap(new_pfn);
         new_pte = new_pte & (~MASK12LSBITS);
-        new_pte = new_pte | PRESENT_BIT | RW_BIT;
+        new_pte = new_pte | PRESENT_BIT | USER_BIT | RW_BIT;
         *pmd_t = new_pte;
     }
 
     u64* pte = (u64*)osmap((*pmd_t) >> 12);
     u64* pte_t = pte + pte_offset;
+    //printk("vm_area_pagefault pte_t \n");
     if ((*pte_t & 0x1) == 0){
         // Entry is not present. Need to allocate.
+        //printk("vm_area_pagefault pte_t allocation \n");
         u64 new_pfn = (u64)os_pfn_alloc(USER_REG);
         u48 new_pte = (u48)osmap(new_pfn);
         new_pte = new_pte & (~MASK12LSBITS);
-        new_pte = new_pte | PRESENT_BIT | RW_BIT;
+        new_pte = new_pte | PRESENT_BIT | USER_BIT | RW_BIT;
         *pte_t = new_pte;
     }
 

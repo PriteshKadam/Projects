@@ -190,9 +190,9 @@ int main(u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5)
   task1_testcase2();
   task1_testcase3();
   */
-    task2_tc1();
+    //task2_tc1();
     task2_tc2();
-    task2_tc3();
+    //task2_tc3();
   return 0;
 }
 

@@ -187,7 +187,7 @@ void set_pagetable_protections(struct exec_context* ctx, u64 addr_start, u64 add
 
 		u48* pte = (u48*)osmap((*pmd_t) >> 12);
 		u48* pte_t = pte + pte_offset;
-		if (*pmd_t & PRESENT_BIT == 0) {
+		if (*pte_t & PRESENT_BIT == 0) {
 			continue;
 		}
 
@@ -278,11 +278,12 @@ long vm_area_mprotect(struct exec_context *current, u64 addr_start, int length, 
 	}
 
 	merge_vmareas(current);
-	printk("set_pagetable_protections.\n");
 	stats->num_vm_area = get_vmarea_count(current);
-	printk("count_vm_areas: %d.\n", stats->num_vm_area);
+	//printk("count_vm_areas: %d.\n", stats->num_vm_area);
+	//printk("set_pagetable_protections.\n");
 	set_pagetable_protections(current, addr_start, addr_end, prot);
-	printk("returning.\n");
+
+	//printk("returning.\n");
 	return 0;
 }
 
@@ -303,7 +304,7 @@ u64 GetNewPte(int type)
 long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
 {
     u48 vaddr = addr;
-
+	//printk("vm_area_pagefault enter \n");
     if (current == NULL || error_code == ERROR_CODE_WRITE_ON_READONLY) {
         //printk("vm_area_pagefault ERROR_CODE_WRITE_ON_READONLY \n");
         return -1;

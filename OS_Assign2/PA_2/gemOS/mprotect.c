@@ -110,10 +110,14 @@ void merge_vmareas(struct exec_context* ctx) {
 			second = second->vm_next;
 		}
 	}
-
+	//printk("merge overlapping areas \n");
 	// merge overlapping areas
+	first = ctx->vm_area;
+	second = first->vm_next;
 	while (second) {
+		//printk("first : Start [%x] - End[%x], Flags[%x] Second : Start [%x] - End[%x], Flags[%x]", first->vm_start, first->vm_end, first->access_flags, second->vm_start, second->vm_end, second->access_flags);
 		if (first->vm_end >= second->vm_start && first->access_flags == second->access_flags) {
+			//printk("merging \n");
 			first->vm_end = second->vm_end;
 			first->vm_next = second->vm_next;
 
@@ -123,6 +127,7 @@ void merge_vmareas(struct exec_context* ctx) {
 			os_free(temp, sizeof(struct vm_area));
 		}
 		else {
+			//printk("Not merging \n");
 			first = second;
 			second = second->vm_next;
 		}

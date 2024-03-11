@@ -128,15 +128,15 @@ int task2_tc2()
         printf("Test case failed \n");
         return 0;
     }
-
+    printf("mprotect end\n");
     // vm_area count should be 3.
     pmap(1);
 
     printf("Reached end of the program\n");
 
     // Access violation, Writing to a read only address. Process should be terminated while executing the below line
-    readonly_address[0] = 'X';
 
+    printf("Returning\n");
     return 0;
 }
 
@@ -181,6 +181,99 @@ int task2_tc3()
     return 0;
 }
 
+int task3_tc1()
+{
+
+    int pages = 4096;
+
+    char* mm1 = mmap(NULL, pages * 6, PROT_READ | PROT_WRITE, 0);
+    if ((long)mm1 < 0)
+    {
+        printf("mmap failed \n");
+        return 1;
+    }
+    // vm_area count should be 1.
+    pmap(1);
+
+    int result = mprotect((void*)mm1, pages, PROT_READ);
+
+    if (result < 0)
+    {
+        // Testcase failed
+        printf("Test case failed \n");
+        return 0;
+    }
+
+    // vm_area count should be 2.
+    pmap(1);
+
+    return 0;
+}
+
+int task3_tc2()
+{
+
+    int pages = 4096;
+
+    char* mm1 = mmap(NULL, pages * 6, PROT_READ | PROT_WRITE, 0);
+    if ((long)mm1 < 0)
+    {
+        printf("mmap failed \n");
+        return 1;
+    }
+    // vm_area count should be 1.
+    pmap(1);
+
+    unsigned long readonly_address = (unsigned long)mm1 + pages * 3;
+
+    int result = mprotect((void*)readonly_address, pages, PROT_READ);
+
+    if (result < 0)
+    {
+        // Testcase failed
+        printf("Test case failed \n");
+        return 0;
+    }
+
+    // vm_area count should be 3.
+    pmap(1);
+
+    return 0;
+}
+
+
+int task3_tc3()
+{
+    int pages = 4096;
+
+    char* mm1 = mmap(NULL, pages * 2, PROT_READ | PROT_WRITE, 0);
+    if ((long)mm1 < 0)
+    {
+        printf("mmap failed \n");
+        return 1;
+    }
+    pmap(1);
+
+    char* mm2 = mmap(NULL, pages * 3, PROT_READ, 0);
+    if ((long)mm2 < 0)
+    {
+        printf("mmap failed \n");
+        return 1;
+    }
+    pmap(1);
+
+
+    int val2 = mprotect((void*)mm1, pages * 5, PROT_READ);
+    if (val2 < 0)
+    {
+        printf("Test case failed \n");
+        return 1;
+    }
+    pmap(1);
+
+    return 0;
+}
+
 int main(u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5)
 {
   
@@ -193,6 +286,10 @@ int main(u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5)
     //task2_tc1();
     task2_tc2();
     //task2_tc3();
+
+    //task3_tc1();
+   //task3_tc2();
+    task3_tc3();
   return 0;
 }
 

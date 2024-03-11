@@ -199,6 +199,8 @@ void set_pagetable_protections(struct exec_context* ctx, u64 addr_start, u64 add
 		if (write_set == 1) {
 			*pte_t |= RW_BIT;
 		}
+		
+
 	}
 
 	return;
@@ -218,7 +220,7 @@ u64 get_vmarea_count(struct exec_context* ctx) {
 
 long vm_area_mprotect(struct exec_context *current, u64 addr_start, int length, int prot)
 {
-	if (!current || !current->vm_area || length < 0 || !(prot == PROT_READ || prot == (PROT_READ | PROT_WRITE))) {
+	if (!current || !current->vm_area || length <= 0 || !(prot == PROT_READ || prot == (PROT_READ | PROT_WRITE))) {
 		return -1;
 	}
 
@@ -303,6 +305,7 @@ u64 GetNewPte(int type)
     u48 new_pte = (u48)osmap(new_pfn);
     new_pte = new_pte & (~MASK12LSBITS);
     new_pte = new_pte | PRESENT_BIT | USER_BIT | RW_BIT;
+
     return new_pte;
 }
 
@@ -320,7 +323,7 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
     struct vm_area* vmarea = current->vm_area;
     while (vmarea != NULL) {
 
-        if (vaddr >= vmarea->vm_start && vaddr <= vmarea->vm_end){
+        if (vaddr >= vmarea->vm_start && vaddr < vmarea->vm_end){
             break;
         }
         vmarea = vmarea->vm_next;
@@ -340,6 +343,8 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
     }
     // Names as per the 4 level page table diagram
     
+	u8 writeset = (vmarea->access_flags & PROT_WRITE) ? 1 : 0;
+	//printk("writeset %d . access[%x] \n", writeset, vmarea->access_flags);
     u48 pgd_offset = ((vaddr >> 39) & MASK9LSBITS); // First 9 bits
     u48 pud_offset = ((vaddr >> 30) & MASK9LSBITS); // second 9 bits
     u48 pmd_offset = ((vaddr >> 21) & MASK9LSBITS); // third 9 bits
@@ -352,7 +357,7 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
         // Entry is not present. Need to allocate.
         //printk("vm_area_pagefault pgd_t allocation \n");
         *pgd_t = GetNewPte(OS_PT_REG);
-    }
+	}
 
     u48* pud = (u48*)osmap((*pgd_t) >> 12);
     u48* pud_t = pud + pud_offset;
@@ -361,7 +366,6 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
         // Entry is not present. Need to allocate.
         //printk("vm_area_pagefault pud_t allocation \n");
         *pud_t = GetNewPte(OS_PT_REG);
-
     }
 
     u48* pmd = (u48*)osmap((*pud_t) >> 12);
@@ -376,12 +380,16 @@ long vm_area_pagefault(struct exec_context *current, u64 addr, int error_code)
 	u48* pte = (u48*)osmap((*pmd_t) >> 12);
 	u48* pte_t = pte + pte_offset;
     //printk("vm_area_pagefault pte_t \n");
-    if ((*pte_t & 0x1) == 0){
-        // Entry is not present. Need to allocate.
-        //printk("vm_area_pagefault pte_t allocation \n");
-        *pte_t = GetNewPte(USER_REG);
-    }
+	if ((*pte_t & 0x1) == 0) {
+		// Entry is not present. Need to allocate.
+		//printk("vm_area_pagefault pte_t allocation \n");
+		*pte_t = GetNewPte(USER_REG);
+	}
+	if (writeset == 1)
+	{
+		*pte_t |= RW_BIT;
+	}
 
+	//printk("pagefault_return\n");
     return 1;
 }
-
